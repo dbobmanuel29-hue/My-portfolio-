@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | BOBMANUEL</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icons/bobmanuel-mark.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body data-auth-page="register">
+    <div class="auth-wrapper">
+        <a href="index.html" class="auth-back">
+            <i data-lucide="arrow-left" width="16" height="16"></i>
+            Back to Home
+        </a>
+
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Create Account</h1>
+                <p>Sign up to get started</p>
+            </div>
+
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label class="form-label" for="regName">Full Name</label>
+                    <input type="text" id="regName" class="form-input" placeholder="Your name" required>
+                    <div class="form-error">Please enter your name</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="regEmail">Email</label>
+                    <input type="email" id="regEmail" class="form-input" placeholder="you@example.com" required>
+                    <div class="form-error">Please enter a valid email</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="regPassword">Password</label>
+                    <input type="password" id="regPassword" class="form-input" placeholder="Min. 6 characters" required>
+                    <div class="form-error">Password must be at least 6 characters</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="regConfirm">Confirm Password</label>
+                    <input type="password" id="regConfirm" class="form-input" placeholder="Confirm your password" required>
+                    <div class="form-error">Passwords do not match</div>
+                </div>
+                <button type="submit" class="form-submit">Create Account</button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="login.html" class="auth-link-inline">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <div class="toast-icon" id="toastIcon"></div>
+        <div class="toast-message" id="toastMessage"></div>
+    </div>
+
+    <script type="module" src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

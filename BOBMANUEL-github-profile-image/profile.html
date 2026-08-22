@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | BOBMANUEL</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icons/bobmanuel-mark.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body data-auth-page="profile">
+    <div class="auth-wrapper">
+        <a href="index.html" class="auth-back">
+            <i data-lucide="arrow-left" width="16" height="16"></i>
+            Back to Home
+        </a>
+
+        <div class="auth-card profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">
+                    <i data-lucide="user" width="40" height="40"></i>
+                </div>
+                <h1 id="profileName">Loading...</h1>
+                <p id="profileEmail" class="profile-email">Loading...</p>
+            </div>
+
+            <div class="profile-details" id="profileDetails">
+                <div class="profile-detail">
+                    <span class="profile-label">Provider</span>
+                    <span class="profile-value" id="profileProvider">—</span>
+                </div>
+                <div class="profile-detail">
+                    <span class="profile-label">Phone</span>
+                    <span class="profile-value" id="profilePhone">—</span>
+                </div>
+                <div class="profile-detail">
+                    <span class="profile-label">Account Created</span>
+                    <span class="profile-value" id="profileCreated">—</span>
+                </div>
+                <div class="profile-detail"><span class="profile-label">Last Login</span><span class="profile-value" id="profileLastLogin">—</span></div>
+                <div class="profile-detail">
+                    <span class="profile-label">User ID</span>
+                    <span class="profile-value" id="profileUid" style="font-family: monospace; font-size: 0.75rem;">—</span>
+                </div>
+            </div>
+
+            <form class="auth-form profile-edit-form" id="profileEditForm">
+                <div class="form-group"><label class="form-label" for="editDisplayName">Display Name</label><input class="form-input" id="editDisplayName" maxlength="100" required></div>
+                <div class="form-group profile-photo-upload-group">
+                    <label class="form-label" for="editPhotoFile">Profile Photo</label>
+                    <input class="form-input" id="editPhotoFile" type="file" accept="image/*">
+                    <div class="field-help">Choose a photo from your phone or device. It will be uploaded automatically.</div>
+                    <div class="upload-status" id="profileUploadStatus" hidden></div>
+                </div>
+                <label class="check" style="display:flex;align-items:center;gap:10px;margin:14px 0;"><input id="emailNotifications" type="checkbox" checked> Email me when new projects, designs, or videos are published</label>
+                <button class="form-submit" type="submit">Save Profile</button>
+            </form>
+
+            <button class="form-submit" id="logoutBtn" style="background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-light); margin-top: 24px;">
+                <i data-lucide="log-out" width="16" height="16"></i>
+                Logout
+            </button>
+
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <div class="toast-icon" id="toastIcon"></div>
+        <div class="toast-message" id="toastMessage"></div>
+    </div>
+
+    <script type="module" src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

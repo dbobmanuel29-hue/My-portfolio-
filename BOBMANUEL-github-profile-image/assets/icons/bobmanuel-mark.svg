@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">BOBMANUEL logo</title>
+  <desc id="desc">A geometric letter B built from two linked rounded shapes</desc>
+  <rect width="64" height="64" rx="16" fill="#0d1512"/>
+  <path d="M18 14h17c9 0 14 4.4 14 11 0 4.5-2.4 7.7-6.3 9.3C47.8 35.8 51 39.6 51 45c0 7.7-5.8 12-15.3 12H18V14Zm9 8v9h7.5c4.1 0 6.2-1.5 6.2-4.6 0-3-2.1-4.4-6.2-4.4H27Zm0 16v11h8.2c4.8 0 7.1-1.8 7.1-5.5S40 38 35.2 38H27Z" fill="#a3e635"/>
+  <path d="M14 18v28" stroke="#f4f7f2" stroke-width="3" stroke-linecap="round" opacity=".9"/>
+</svg>

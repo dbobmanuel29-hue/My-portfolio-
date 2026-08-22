@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function admin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'admin'
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true;
+    }
+    function own(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // Users may read only their own authorization record. No browser/client
+    // may create, update, activate, deactivate, or delete an admin document.
+    match /admins/{uid} {
+      allow get: if own(uid);
+      allow list: if false;
+      allow create, update, delete: if false;
+    }
+
+    match /users/{uid} {
+      allow read: if own(uid) || admin();
+      // A user creates their own profile after Firebase Auth registration.
+      allow create: if own(uid)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.get('email', '')
+        && request.resource.data.provider == request.auth.token.firebase.sign_in_provider
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() <= 100
+        && request.resource.data.photoURL is string
+        && request.resource.data.photoURL.size() <= 1000
+        && request.resource.data.phoneNumber is string
+        && request.resource.data.emailNotifications is bool;
+      // Profile edits may only change user-editable fields. Authentication-owned
+      // fields (uid/email/provider/createdAt/lastLogin) are not client-editable.
+      allow update: if admin() || (own(uid)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.provider == resource.data.provider
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 100
+        && request.resource.data.photoURL is string
+        && request.resource.data.photoURL.size() <= 1000
+        && request.resource.data.emailNotifications is bool
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','photoURL','emailNotifications','updatedAt','lastLogin']));
+      allow delete: if admin();
+    }
+    match /contact_messages/{id} {
+      // Contact messages are private actions: the client must be authenticated.
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['name','email','subject','message','createdAt','status','read'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string && request.resource.data.email.size() <= 254 && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && request.resource.data.subject is string && request.resource.data.subject.size() > 0 && request.resource.data.subject.size() <= 160
+        && request.resource.data.message is string && request.resource.data.message.size() > 0 && request.resource.data.message.size() <= 3000
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.status == 'unread' && request.resource.data.read == false;
+      allow read, update, delete: if admin();
+    }
+    match /client_inquiries/{id} {
+      // Client inquiry creation is intentionally narrow: the authenticated UID
+      // must own the new document, the client may only send the known fields,
+      // and both timestamps must be Firestore server timestamps (request.time).
+      allow create: if signedIn()
+        && request.resource.data.keys().hasAll(['uid','fullName','email','phone','service','package','budget','description','deadline','referenceUrl','notes','status','createdAt','updatedAt'])
+        && request.resource.data.keys().hasOnly(['uid','fullName','email','phone','service','package','budget','description','deadline','referenceUrl','notes','status','createdAt','updatedAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.fullName is string && request.resource.data.fullName.size() > 0 && request.resource.data.fullName.size() <= 100
+        && request.resource.data.email is string && request.resource.data.email.size() > 0 && request.resource.data.email.size() <= 254 && request.resource.data.email.matches('^[^@\s]+@[^@\s]+\.[^@\s]+$')
+        && request.resource.data.phone is string && request.resource.data.phone.size() > 0 && request.resource.data.phone.size() <= 30
+        && request.resource.data.service in ['Web Development','Graphic Design','Video Editing','Multiple Services','Other']
+        && request.resource.data.package is string && request.resource.data.package.size() > 0 && request.resource.data.package.size() <= 80
+        && request.resource.data.budget in ['Under ₦50,000','₦50,000–₦100,000','₦100,000–₦200,000','₦200,000–₦300,000','₦300,000+','Not sure']
+        && request.resource.data.description is string && request.resource.data.description.size() > 0 && request.resource.data.description.size() <= 3000
+        && request.resource.data.deadline in ['ASAP','Within 1 week','1–2 weeks','2–4 weeks','1–2 months','Flexible']
+        && request.resource.data.referenceUrl is string && request.resource.data.referenceUrl.size() <= 1000
+        && request.resource.data.notes is string && request.resource.data.notes.size() <= 2000
+        && request.resource.data.status == 'new'
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow read: if admin();
+      allow update: if admin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+        && request.resource.data.status in ['new','contacted','in-progress','completed','cancelled']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if admin();
+    }
+    match /projects/{id} { allow read: if true; allow write: if admin(); }
+    match /designs/{id} { allow read: if true; allow write: if admin(); }
+    match /videos/{id} { allow read: if true; allow write: if admin(); }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

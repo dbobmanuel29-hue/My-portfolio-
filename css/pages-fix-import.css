@@ -1,0 +1,33 @@
+@import url("./pages-original.css");
+
+/* Desktop rendering safety patch. */
+@media (min-width: 1025px) {
+    .fade-in,
+    .fade-in-left,
+    .fade-in-right {
+        animation: bobmanuelDesktopReveal 0.65s ease-out 0.08s both;
+    }
+
+    .hero-content,
+    .hero-visual,
+    .hero-container,
+    section,
+    .container {
+        content-visibility: visible !important;
+    }
+}
+
+@keyframes bobmanuelDesktopReveal {
+    from { opacity: 0; transform: translate3d(0, 18px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fade-in,
+    .fade-in-left,
+    .fade-in-right {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}

@@ -1,0 +1,45 @@
+name: Add Terms footer link
+
+on:
+  push:
+    branches:
+      - terms-footer
+
+permissions:
+  contents: write
+
+jobs:
+  add-terms-link:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add Terms & Conditions to shared footer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('js/shared.js')
+          s = p.read_text(encoding='utf-8')
+          old = '<li><a href="education.html">Education</a></li><li><a href="cv.html">CV</a></li><li><a href="contact.html">Contact</a></li>'
+          new = '<li><a href="education.html">Education</a></li><li><a href="cv.html">CV</a></li><li><a href="contact.html">Contact</a></li><li><a href="terms.html">Terms &amp; Conditions</a></li>'
+          if old not in s:
+              raise SystemExit('Expected footer markup was not found; no changes made.')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Commit footer change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/shared.js
+          git diff --cached --quiet || git commit -m "Add Terms and Conditions link to footer"
+          git push
+
+      - name: Remove helper workflow
+        run: |
+          git rm .github/workflows/add-terms-footer.yml
+          git commit -m "Remove temporary footer helper workflow"
+          git push

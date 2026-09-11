@@ -16,7 +16,7 @@
 
             button.addEventListener('click', event => {
                 event.preventDefault();
-                event.stopPropagation();
+                event.stopImmediatePropagation();
                 const shouldOpen = !dropdown.classList.contains('open');
                 dropdowns.forEach(item => {
                     item.classList.remove('open');
@@ -24,7 +24,7 @@
                 });
                 dropdown.classList.toggle('open', shouldOpen);
                 button.setAttribute('aria-expanded', String(shouldOpen));
-            });
+            }, true);
         });
 
         document.addEventListener('click', event => {

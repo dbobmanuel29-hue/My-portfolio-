@@ -4,6 +4,38 @@
     original.src = 'js/main-original.js';
     document.head.appendChild(original);
 
+    function initPagesDropdown() {
+        const dropdowns = document.querySelectorAll('.nav-dropdown');
+        if (!dropdowns.length) return;
+
+        dropdowns.forEach(dropdown => {
+            if (dropdown.dataset.dropdownReady === 'true') return;
+            const button = dropdown.querySelector('.dropdown-toggle');
+            if (!button) return;
+            dropdown.dataset.dropdownReady = 'true';
+
+            button.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                const shouldOpen = !dropdown.classList.contains('open');
+                dropdowns.forEach(item => {
+                    item.classList.remove('open');
+                    item.querySelector('.dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+                });
+                dropdown.classList.toggle('open', shouldOpen);
+                button.setAttribute('aria-expanded', String(shouldOpen));
+            });
+        });
+
+        document.addEventListener('click', event => {
+            if (event.target.closest('.nav-dropdown')) return;
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.remove('open');
+                dropdown.querySelector('.dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+            });
+        }, { passive: true });
+    }
+
     function enhanceFooter() {
         const footer = document.querySelector('.footer');
         if (!footer) return;
@@ -26,9 +58,14 @@
         }
     }
 
+    function runEnhancements() {
+        initPagesDropdown();
+        enhanceFooter();
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => setTimeout(enhanceFooter, 0), { once: true });
+        document.addEventListener('DOMContentLoaded', runEnhancements, { once: true });
     } else {
-        setTimeout(enhanceFooter, 0);
+        runEnhancements();
     }
 })();

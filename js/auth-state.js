@@ -152,25 +152,15 @@ function getProtectedContactAction(link) {
     const protocol = url.protocol.toLowerCase();
     const host = url.hostname.toLowerCase();
 
-    if (protocol === 'mailto:') {
-        return { url: href, label: 'Email' };
-    }
+    // Public browsing: Instagram, TikTok, YouTube, email, portfolio pages,
+    // and other external links must be accessible without authentication.
+    // WhatsApp is intentionally protected because it is a direct contact action.
     if (protocol === 'https:' && host === 'wa.me') {
         return { url: href, label: 'WhatsApp' };
-    }
-    if (protocol === 'https:' && (host === 'youtube.com' || host.endsWith('.youtube.com') || host === 'youtu.be')) {
-        return { url: href, label: 'YouTube' };
-    }
-    if (protocol === 'https:' && (host === 'instagram.com' || host.endsWith('.instagram.com'))) {
-        return { url: href, label: 'Instagram' };
-    }
-    if (protocol === 'https:' && (host === 'tiktok.com' || host.endsWith('.tiktok.com'))) {
-        return { url: href, label: 'TikTok' };
     }
 
     return null;
 }
-
 function rememberAuthAction(action) {
     if (!action) return;
     try {

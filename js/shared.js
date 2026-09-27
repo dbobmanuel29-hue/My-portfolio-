@@ -143,6 +143,26 @@
             section.innerHTML = `<div class="container"><span class="section-label">Explore More</span><h2 class="section-title">Continue through the portfolio.</h2><div class="explore-links">${links.map(link => `<a href="${link[0]}" class="explore-link"><span><strong>${link[1]}</strong><small>${link[2]}</small></span><i data-lucide="arrow-up-right"></i></a>`).join('')}</div></div>`;
             main.appendChild(section);
         }
+        const visualShowcase = document.createElement('section');
+        visualShowcase.className = 'page-section visual-showcase';
+        visualShowcase.innerHTML = `
+            <div class="container">
+                <div class="visual-showcase-heading">
+                    <div>
+                        <span class="section-label">Visual Work</span>
+                        <h2 class="section-title">A little visual direction goes a long way.</h2>
+                        <p class="section-subtitle">A few selected creative pieces from the design side of BOBMANUEL — added here to keep the portfolio pages visually balanced while showing the range behind the work.</p>
+                    </div>
+                    <a class="btn btn-ghost" href="design.html">View Graphic Design <i data-lucide="arrow-up-right" width="15" height="15"></i></a>
+                </div>
+                <div class="visual-showcase-grid">
+                    <a class="visual-showcase-card" href="design.html"><img src="assets/images/designs/brand-launch.svg" alt="Brand launch design preview" loading="lazy"><span>Brand direction</span></a>
+                    <a class="visual-showcase-card" href="design.html"><img src="assets/images/designs/future-build.svg" alt="Future build design preview" loading="lazy"><span>Digital concepts</span></a>
+                    <a class="visual-showcase-card" href="design.html"><img src="assets/images/designs/night-wave.svg" alt="Night wave design preview" loading="lazy"><span>Creative visuals</span></a>
+                </div>
+            </div>`;
+        main.appendChild(visualShowcase);
+
         const connect = document.createElement('section');
         connect.className = 'page-section creator-connect';
         connect.innerHTML = `

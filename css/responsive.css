@@ -954,3 +954,92 @@ textarea:focus-visible {
   .journey-section { padding:64px 0; }
   .journey-section .btn { width:100%; justify-content:center; }
 }
+
+/* ============================================
+   FINAL RESPONSIVE + NAVIGATION HARDENING
+   ============================================ */
+
+/* Keep every media element inside its container. */
+*, *::before, *::after { box-sizing: border-box; }
+img, video, iframe, canvas, svg { max-width: 100%; }
+img, video { height: auto; }
+button, input, textarea, select { max-width: 100%; }
+h1, h2, h3, h4, h5, h6, p, a, li, td, th { overflow-wrap: anywhere; }
+table { width: 100%; max-width: 100%; }
+pre, code { max-width: 100%; overflow-x: auto; }
+
+/* Desktop hover + click support. */
+@media (min-width: 1025px) and (hover: hover) {
+    .nav-dropdown:hover > .dropdown-menu,
+    .nav-dropdown:focus-within > .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translate(-50%, 0);
+    }
+}
+
+/* Touch/tablet dropdown: never rely on hover. */
+@media (max-width: 1024px) {
+    .navbar { overflow: visible !important; }
+    .nav-container { overflow: visible !important; }
+    .nav-menu { z-index: 3000 !important; }
+    .nav-dropdown { width: 100%; }
+    .nav-dropdown > .dropdown-toggle {
+        min-height: 46px;
+        cursor: pointer;
+        touch-action: manipulation;
+    }
+    .nav-dropdown .dropdown-menu {
+        position: static !important;
+        width: 100% !important;
+        max-width: 100%;
+        max-height: none !important;
+        overflow: visible !important;
+        margin: 3px 0 6px !important;
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    .nav-dropdown:not(.open) > .dropdown-menu {
+        display: none !important;
+    }
+    .nav-dropdown.open > .dropdown-menu {
+        display: block !important;
+    }
+    .nav-dropdown .dropdown-menu a {
+        min-height: 42px;
+        touch-action: manipulation;
+    }
+}
+
+/* Ultra-small phones: prevent controls and cards from forcing horizontal scroll. */
+@media (max-width: 430px) {
+    html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+    .container, .nav-container, .hero-container, .hero-stats { min-width: 0; }
+    .nav-logo { min-width: 0; }
+    .nav-logo span { min-width: 0; }
+    .btn, .btn-admin-login { white-space: normal; }
+    .page-hero-inner, .page-section > .container { min-width: 0; }
+    .visual-showcase-heading { min-width: 0; }
+    .visual-showcase-grid { grid-template-columns: 1fr; }
+}
+
+/* Very wide displays: keep content readable instead of stretching indefinitely. */
+@media (min-width: 2560px) {
+    :root { --container-width: 1680px; }
+    body { font-size: clamp(16px, .45vw, 19px); }
+}
+
+/* Landscape phones / short tablets. */
+@media (max-height: 560px) and (orientation: landscape) {
+    .hero { min-height: auto; padding-top: calc(var(--header-height) + 28px); }
+    .nav-menu { max-height: calc(100vh - var(--header-height) - 8px); }
+    .site-loader { min-height: 100dvh; }
+}
+
+/* Modern viewport units where supported. */
+@supports (height: 100dvh) {
+    .nav-menu { max-height: calc(100dvh - var(--header-height) - 20px); }
+}

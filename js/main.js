@@ -125,7 +125,7 @@ function initScrollAnimations() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
             if (!entry.isIntersecting) return;
-            setTimeout(() => entry.target.classList.add('visible'), index * 55);
+            setTimeout(() => entry.target.classList.add('visible'), index * 35);
             observer.unobserve(entry.target);
         });
     }, {

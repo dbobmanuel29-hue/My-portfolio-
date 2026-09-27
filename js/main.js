@@ -118,7 +118,7 @@ function updateActiveNavLink() {
    ============================================ */
 function initScrollAnimations() {
     const animatedElements = document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right');
-    if (window.matchMedia('(max-width: 1024px), (prefers-reduced-motion: reduce)').matches) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         animatedElements.forEach(element => element.classList.add('visible'));
         return;
     }

@@ -150,3 +150,9 @@ html,body{max-width:100%;overflow-x:clip!important}.navbar{background:var(--bg-p
 .visual-showcase-card::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.72)); z-index:-1; }
 .visual-showcase-card span { color:#fff; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
 .visual-showcase-card:hover img { transform:scale(1.04); }
+
+@media(max-width:720px){
+.visual-showcase-heading{grid-template-columns:1fr;gap:16px;align-items:start}
+.visual-showcase-grid{grid-template-columns:1fr}
+.visual-showcase-card{min-height:190px}
+}

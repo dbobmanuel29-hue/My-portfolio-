@@ -1,5 +1,44 @@
 /* Shared public navigation, footer, and dropdown behavior. */
 (function () {
+    // Lightweight page loader + navigation polish. It is created before the browser's first paint.
+    const loader = document.createElement('div');
+    loader.className = 'site-loader';
+    loader.setAttribute('aria-label', 'Loading BOBMANUEL portfolio');
+    loader.innerHTML = '<div class="site-loader-mark"><img src="assets/icons/bobmanuel-mark.svg" alt="" width="46" height="46"></div><div class="site-loader-wordmark">BOBMANUEL<span>.</span></div><div class="site-loader-bar"><span></span></div>';
+    document.documentElement.classList.add('is-loading');
+    document.body ? document.body.prepend(loader) : document.addEventListener('DOMContentLoaded', () => document.body.prepend(loader), { once: true });
+
+    const finishLoader = () => {
+        if (!loader || loader.classList.contains('is-done')) return;
+        loader.classList.add('is-done');
+        document.documentElement.classList.remove('is-loading');
+        window.setTimeout(() => loader.remove(), 420);
+    };
+    window.addEventListener('load', () => {
+        // Give fonts/icons a frame to settle, then reveal the page.
+        requestAnimationFrame(() => requestAnimationFrame(finishLoader));
+    }, { once: true });
+    window.setTimeout(finishLoader, 2200);
+
+    // Keep internal page changes visually consistent without delaying navigation.
+    document.addEventListener('click', event => {
+        const link = event.target.closest('a[href]');
+        if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
+        const raw = link.getAttribute('href') || '';
+        if (!raw || raw.startsWith('#') || raw.startsWith('mailto:') || raw.startsWith('tel:') || raw.startsWith('javascript:')) return;
+        try {
+            const url = new URL(raw, window.location.href);
+            if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
+            if (loader) {
+                loader.classList.remove('is-done');
+                document.documentElement.classList.add('is-loading');
+            }
+        } catch (_) { /* Ignore malformed/non-URL hrefs. */ }
+    }, { passive: true });
+
+    // Avoid expensive hover transforms on touch devices and keep scrolling compositor-friendly.
+    document.documentElement.style.setProperty('--smooth-scroll-duration', '420ms');
+
     document.documentElement.setAttribute('data-theme', 'light');
     document.documentElement.style.colorScheme = 'light';
     try { localStorage.removeItem('bobmanuel-theme'); } catch (_) { /* Storage can be unavailable. */ }

@@ -3394,3 +3394,23 @@ html.is-loading body { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
     .nav-dropdown .dropdown-menu, .nav-dropdown > .dropdown-toggle svg { transition: none; }
 }
+
+/* Final dropdown interaction fix: remove the hover-to-click gap. */
+@media (min-width: 1025px) {
+    .nav-dropdown .dropdown-menu {
+        top: 100%;
+        margin-top: 0;
+    }
+    .nav-dropdown::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        height: 14px;
+        z-index: 1999;
+    }
+    .nav-dropdown .dropdown-menu {
+        z-index: 2000;
+    }
+}

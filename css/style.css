@@ -3218,3 +3218,86 @@ img[loading="lazy"] { content-visibility:auto; }
 .journey-copy { max-width:720px; }
 .journey-copy .section-title { margin-bottom:12px; }
 .journey-copy p { max-width:700px; color:var(--text-secondary); line-height:1.75; margin:0; }
+
+
+/* ============================================
+   SMOOTH LOADING + PERFORMANCE POLISH
+   ============================================ */
+.site-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: #f4f7f2;
+    color: #0d1512;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity .36s ease, visibility .36s ease;
+}
+.site-loader.is-done {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.site-loader-mark {
+    width: 72px;
+    height: 72px;
+    display: grid;
+    place-items: center;
+    border-radius: 20px;
+    background: #fff;
+    border: 1px solid rgba(24,39,33,.12);
+    box-shadow: 0 16px 40px rgba(19,34,28,.12);
+    animation: loaderFloat 1.4s ease-in-out infinite;
+}
+.site-loader-mark img {
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+}
+.site-loader-wordmark {
+    font-size: .95rem;
+    font-weight: 900;
+    letter-spacing: .12em;
+}
+.site-loader-wordmark span { color: #65a30d; }
+.site-loader-bar {
+    width: 150px;
+    height: 3px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: rgba(101,163,13,.12);
+}
+.site-loader-bar span {
+    display: block;
+    width: 45%;
+    height: 100%;
+    border-radius: inherit;
+    background: #65a30d;
+    animation: loaderProgress 1.05s ease-in-out infinite;
+    transform-origin: left center;
+}
+html.is-loading body { overflow: hidden; }
+
+@keyframes loaderFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.025); }
+}
+@keyframes loaderProgress {
+    0% { transform: translateX(-120%) scaleX(.7); }
+    50% { transform: translateX(70%) scaleX(1.1); }
+    100% { transform: translateX(250%) scaleX(.7); }
+}
+
+/* Keep large off-screen sections from doing layout/paint work until needed. */
+@media (min-width: 861px) {
+    section:not(.hero) { content-visibility: auto; contain-intrinsic-size: 600px; }
+}
+.hero-workspace-image img,
+.creator-avatar {
+    content-visibility: visible;
+}

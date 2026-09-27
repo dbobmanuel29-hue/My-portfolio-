@@ -52,6 +52,41 @@ function initNavigation() {
             navToggle.setAttribute('aria-expanded', String(isOpen));
             document.body.classList.toggle('menu-open', isOpen);
         });
+
+        // One delegated handler owns the Pages dropdown. This avoids duplicate
+        // click listeners fighting each other on touch/tablet devices.
+        navMenu.addEventListener('click', event => {
+            const toggle = event.target.closest('.nav-dropdown > .dropdown-toggle');
+            if (toggle) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const dropdown = toggle.closest('.nav-dropdown');
+                const shouldOpen = !dropdown.classList.contains('open');
+
+                navMenu.querySelectorAll('.nav-dropdown').forEach(item => {
+                    item.classList.remove('open');
+                    item.querySelector('.dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+                });
+
+                dropdown.classList.toggle('open', shouldOpen);
+                toggle.setAttribute('aria-expanded', String(shouldOpen));
+                return;
+            }
+
+            if (event.target.closest('.nav-dropdown .dropdown-menu a')) {
+                closeMobileMenu();
+            }
+        });
+
+        // Close the dropdown when tapping elsewhere, but never on the tap that opens it.
+        document.addEventListener('click', event => {
+            if (event.target.closest('.nav-dropdown')) return;
+            navMenu.querySelectorAll('.nav-dropdown').forEach(item => {
+                item.classList.remove('open');
+                item.querySelector('.dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+            });
+        });
     }
 
     document.querySelectorAll('.nav-menu a.nav-link').forEach(link => {

@@ -1,24 +1,25 @@
 /* Shared public navigation, footer, and dropdown behavior. */
 (function () {
-    // Lightweight page loader + navigation polish. It is created before the browser's first paint.
-    const loader = document.createElement('div');
-    loader.className = 'site-loader';
-    loader.setAttribute('aria-label', 'Loading BOBMANUEL portfolio');
-    loader.innerHTML = '<div class="site-loader-mark"><img src="assets/icons/bobmanuel-mark.svg" alt="" width="46" height="46"></div><div class="site-loader-wordmark">BOBMANUEL<span>.</span></div><div class="site-loader-bar"><span></span></div>';
-    document.documentElement.classList.add('is-loading');
-    document.body ? document.body.prepend(loader) : document.addEventListener('DOMContentLoaded', () => document.body.prepend(loader), { once: true });
+    const page = document.body?.dataset.page || 'home';
+    const shouldShowLoader = page === 'home';
 
-    const finishLoader = () => {
-        if (!loader || loader.classList.contains('is-done')) return;
-        loader.classList.add('is-done');
-        document.documentElement.classList.remove('is-loading');
-        window.setTimeout(() => loader.remove(), 420);
-    };
-    window.addEventListener('load', () => {
-        // Give fonts/icons a frame to settle, then reveal the page.
-        requestAnimationFrame(() => requestAnimationFrame(finishLoader));
-    }, { once: true });
-    window.setTimeout(finishLoader, 2200);
+    // Show the branded loader only on the homepage. Other pages should open immediately.
+    if (shouldShowLoader) {
+        const loader = document.createElement('div');
+        loader.className = 'site-loader';
+        loader.setAttribute('aria-label', 'Loading BOBMANUEL portfolio');
+        loader.innerHTML = '<div class="site-loader-mark"><img src="assets/icons/bobmanuel-mark.svg" alt="" width="46" height="46"></div><div class="site-loader-wordmark">BOBMANUEL<span>.</span></div><div class="site-loader-bar"><span></span></div>';
+        document.documentElement.classList.add('is-loading');
+        document.body.prepend(loader);
+        const finishLoader = () => {
+            if (loader.classList.contains('is-done')) return;
+            loader.classList.add('is-done');
+            document.documentElement.classList.remove('is-loading');
+            window.setTimeout(() => loader.remove(), 420);
+        };
+        window.addEventListener('load', () => requestAnimationFrame(() => requestAnimationFrame(finishLoader)), { once: true });
+        window.setTimeout(finishLoader, 2200);
+    }
 
     // Do not re-open the initial loader during internal navigation.
     // Page-to-page navigation should remain immediate and responsive.
@@ -35,7 +36,6 @@
         favicon.href = 'assets/icons/bobmanuel-mark.svg';
         document.head.appendChild(favicon);
     }
-    const page = document.body.dataset.page || 'home';
     const homePrefix = page === 'home' ? '' : 'index.html';
 
     const headerHost = document.querySelector('[data-shared-header]');
@@ -88,6 +88,7 @@
                                 <a href="https://www.tiktok.com/@itsglitchronin.vfx" target="_blank" rel="noopener" aria-label="TikTok"><img src="assets/icons/tiktok.svg" alt="" width="16" height="16"></a>
                                 <a href="https://www.instagram.com/scott_vfx?igsh=MXMyMjVibTJ5MHhyeg%3D%3D&amp;igsi=MXMyMjVibTJ5MHhyeg%3D%3D" target="_blank" rel="noopener" aria-label="Instagram"><img src="assets/icons/instagram.svg" alt="" width="16" height="16"></a>
                                 <a href="https://youtube.com/@scottedits-f2g" target="_blank" rel="noopener" aria-label="YouTube"><img src="assets/icons/youtube.svg" alt="" width="16" height="16"></a>
+                                <a href="https://wa.me/2349112403944" target="_blank" rel="noopener" aria-label="WhatsApp"><img src="assets/icons/whatsapp.svg" alt="" width="16" height="16"></a>
                                 <a href="mailto:dbobmanuel29@gmail.com" aria-label="Email"><img src="assets/icons/gmail.svg" alt="" width="16" height="16"></a>
                             </div>
                         </div>

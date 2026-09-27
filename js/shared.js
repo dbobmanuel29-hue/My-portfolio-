@@ -180,47 +180,6 @@
         main.appendChild(connect);
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const dropdowns = document.querySelectorAll('.nav-dropdown');
-
-        function closeDropdowns() {
-            dropdowns.forEach(dropdown => {
-                dropdown.classList.remove('open');
-                const button = dropdown.querySelector('.dropdown-toggle');
-                if (button) button.setAttribute('aria-expanded', 'false');
-            });
-        }
-
-        dropdowns.forEach(dropdown => {
-            const button = dropdown.querySelector('.dropdown-toggle');
-            if (!button) return;
-            button.addEventListener('click', event => {
-                event.stopPropagation();
-                const opening = !dropdown.classList.contains('open');
-                closeDropdowns();
-                dropdown.classList.toggle('open', opening);
-                button.setAttribute('aria-expanded', String(opening));
-            });
-            dropdown.querySelectorAll('a').forEach(link => link.addEventListener('click', closeDropdowns));
-            dropdown.addEventListener('mouseenter', () => {
-                if (window.matchMedia('(min-width: 861px) and (hover: hover)').matches) {
-                    closeDropdowns();
-                    dropdown.classList.add('open');
-                    button.setAttribute('aria-expanded', 'true');
-                }
-            });
-            dropdown.addEventListener('mouseleave', () => {
-                if (window.matchMedia('(min-width: 861px) and (hover: hover)').matches) closeDropdowns();
-            });
-        });
-
-        document.addEventListener('click', event => {
-            if (!event.target.closest('.nav-dropdown')) closeDropdowns();
-        });
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') closeDropdowns();
-        });
-    });
 })();
 
 import('./auth-state.js').catch(error => {

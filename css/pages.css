@@ -117,7 +117,7 @@ html[data-theme="light"] .creator-connect-links img[src*="tiktok/ffffff"] { filt
 .hero-socials img[src*="youtube"],.footer-socials img[src*="youtube"],.social-card-icon img[src*="youtube"],.creator-connect-links img[src*="youtube"] { content:url("../assets/icons/youtube.svg")!important; }
 .hero-socials img[src*="whatsapp"],.contact-detail-icon img[src*="whatsapp"],.contact-actions .btn img[src*="whatsapp"],.whatsapp-float img[src*="whatsapp"],.creator-connect-links img[src*="whatsapp"] { content:url("../assets/icons/whatsapp.svg")!important; }
 .hero-socials img[src*="gmail"],.footer-socials img[src*="gmail"],.contact-detail-icon img[src*="gmail"],.contact-actions .btn img[src*="gmail"] { content:url("../assets/icons/gmail.svg")!important; }
-.hero-socials img[src*="tiktok"],.footer-socials img[src*="tiktok"],.social-card-icon img[src*="tiktok"],.creator-connect-links img[src*="tiktok"] { filter:invert(1)!important; }
+.hero-socials img[src*="tiktok"],.footer-socials img[src*="tiktok"],.social-card-icon img[src*="tiktok"],.creator-connect-links img[src*="tiktok"] { filter:none!important; }
 .platform-strip a[href*="tiktok"]::before { background-image:url("../assets/icons/tiktok.svg"); }
 .platform-strip a[href*="instagram"]::before { background-image:url("../assets/icons/instagram.svg"); }
 .platform-strip a[href*="youtube"]::before { background-image:url("../assets/icons/youtube.svg"); }

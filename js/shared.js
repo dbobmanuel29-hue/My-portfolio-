@@ -20,22 +20,8 @@
     }, { once: true });
     window.setTimeout(finishLoader, 2200);
 
-    // Keep internal page changes visually consistent without delaying navigation.
-    document.addEventListener('click', event => {
-        const link = event.target.closest('a[href]');
-        if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
-        const raw = link.getAttribute('href') || '';
-        if (!raw || raw.startsWith('#') || raw.startsWith('mailto:') || raw.startsWith('tel:') || raw.startsWith('javascript:')) return;
-        try {
-            const url = new URL(raw, window.location.href);
-            if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
-            if (loader) {
-                loader.classList.remove('is-done');
-                document.documentElement.classList.add('is-loading');
-            }
-        } catch (_) { /* Ignore malformed/non-URL hrefs. */ }
-    }, { passive: true });
-
+    // Do not re-open the initial loader during internal navigation.
+    // Page-to-page navigation should remain immediate and responsive.
     // Avoid expensive hover transforms on touch devices and keep scrolling compositor-friendly.
     document.documentElement.style.setProperty('--smooth-scroll-duration', '420ms');
 
@@ -99,10 +85,10 @@
                             <div class="footer-logo"><img class="brand-mark" src="assets/icons/bobmanuel-mark.svg" alt="" width="34" height="34">BOBMANUEL.</div>
                             <p><strong>Tamunodiepriye Sogbeye Bobmanuel</strong><br>Full-Stack Developer • Graphic Designer • Video Editor<br>Building complete digital solutions and creative content from Nigeria.</p>
                             <div class="footer-socials">
-                                <a href="https://www.tiktok.com/@itsglitchronin.vfx" target="_blank" rel="noopener" aria-label="TikTok"><img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="" width="16" height="16"></a>
-                                <a href="https://www.instagram.com/scott_vfx?igsh=MXMyMjVibTJ5MHhyeg%3D%3D&amp;igsi=MXMyMjVibTJ5MHhyeg%3D%3D" target="_blank" rel="noopener" aria-label="Instagram"><img src="https://cdn.simpleicons.org/instagram/E4405F" alt="" width="16" height="16"></a>
-                                <a href="https://youtube.com/@scottedits-f2g" target="_blank" rel="noopener" aria-label="YouTube"><img src="https://cdn.simpleicons.org/youtube/FF0000" alt="" width="16" height="16"></a>
-                                <a href="mailto:dbobmanuel29@gmail.com" aria-label="Email"><img src="https://cdn.simpleicons.org/gmail/EA4335" alt="" width="16" height="16"></a>
+                                <a href="https://www.tiktok.com/@itsglitchronin.vfx" target="_blank" rel="noopener" aria-label="TikTok"><img src="assets/icons/tiktok.svg" alt="" width="16" height="16"></a>
+                                <a href="https://www.instagram.com/scott_vfx?igsh=MXMyMjVibTJ5MHhyeg%3D%3D&amp;igsi=MXMyMjVibTJ5MHhyeg%3D%3D" target="_blank" rel="noopener" aria-label="Instagram"><img src="assets/icons/instagram.svg" alt="" width="16" height="16"></a>
+                                <a href="https://youtube.com/@scottedits-f2g" target="_blank" rel="noopener" aria-label="YouTube"><img src="assets/icons/youtube.svg" alt="" width="16" height="16"></a>
+                                <a href="mailto:dbobmanuel29@gmail.com" aria-label="Email"><img src="assets/icons/gmail.svg" alt="" width="16" height="16"></a>
                             </div>
                         </div>
                         <div class="footer-col"><h4>Navigate</h4><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="projects.html">Projects</a></li><li><a href="design.html">Design</a></li><li><a href="videos.html">Edits</a></li></ul></div>
@@ -163,11 +149,11 @@
                 <img class="creator-connect-photo" src="${typeof CREATOR_IMAGE !== 'undefined' ? CREATOR_IMAGE : ''}" alt="BOBMANUEL profile photo" width="104" height="104" loading="lazy" decoding="async">
                 <div class="creator-connect-copy"><span class="section-label">Creator Accounts</span><h2>See the work where I publish it.</h2><p>The creator handles use their existing Scott names. My professional portfolio identity remains Tamunodiepriye Sogbeye Bobmanuel.</p></div>
                 <div class="creator-connect-links">
-                    <a href="https://www.tiktok.com/@itsglitchronin.vfx" target="_blank" rel="noopener"><img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok logo" width="22" height="22"><span>TikTok</span></a>
-                    <a href="https://www.instagram.com/scott_vfx?igsh=MXMyMjVibTJ5MHhyeg%3D%3D&amp;igsi=MXMyMjVibTJ5MHhyeg%3D%3D" target="_blank" rel="noopener"><img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram logo" width="22" height="22"><span>Instagram</span></a>
-                    <a href="https://youtube.com/@scottedits-f2g" target="_blank" rel="noopener"><img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube logo" width="24" height="24"><span>YouTube</span></a>
-                    <a href="mailto:dbobmanuel29@gmail.com"><img src="https://cdn.simpleicons.org/gmail/EA4335" alt="Gmail logo" width="22" height="22"><span>Email</span></a>
-                    <a href="https://wa.me/2349112403944" target="_blank" rel="noopener"><img src="https://cdn.simpleicons.org/whatsapp/25D366" alt="WhatsApp logo" width="22" height="22"><span>WhatsApp</span></a>
+                    <a href="https://www.tiktok.com/@itsglitchronin.vfx" target="_blank" rel="noopener"><img src="assets/icons/tiktok.svg" alt="TikTok logo" width="22" height="22"><span>TikTok</span></a>
+                    <a href="https://www.instagram.com/scott_vfx?igsh=MXMyMjVibTJ5MHhyeg%3D%3D&amp;igsi=MXMyMjVibTJ5MHhyeg%3D%3D" target="_blank" rel="noopener"><img src="assets/icons/instagram.svg" alt="Instagram logo" width="22" height="22"><span>Instagram</span></a>
+                    <a href="https://youtube.com/@scottedits-f2g" target="_blank" rel="noopener"><img src="assets/icons/youtube.svg" alt="YouTube logo" width="24" height="24"><span>YouTube</span></a>
+                    <a href="mailto:dbobmanuel29@gmail.com"><img src="assets/icons/gmail.svg" alt="Gmail logo" width="22" height="22"><span>Email</span></a>
+                    <a href="https://wa.me/2349112403944" target="_blank" rel="noopener"><img src="assets/icons/whatsapp.svg" alt="WhatsApp logo" width="22" height="22"><span>WhatsApp</span></a>
                 </div>
             </div>`;
         main.appendChild(connect);

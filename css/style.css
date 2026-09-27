@@ -2227,7 +2227,7 @@ section {
 .fade-in {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.45s ease, transform 0.45s ease;
 }
 
 .fade-in.visible {
@@ -3103,11 +3103,7 @@ html[data-theme="light"] body {
 }
 
 /* Performance tuning: preserve the existing motion design while reducing paint/layout work. */
-img { content-visibility: auto; }
-.gallery-grid img, .projects-grid img, .videos-grid img { contain: paint; }
-@media (max-width: 1024px) {
-    .fade-in, .fade-in-left, .fade-in-right { will-change: opacity, transform; }
-}
+gallery-grid img, .projects-grid img, .videos-grid img { contain: paint; }
 
 .admin-site-bell{position:relative;display:inline-flex!important;align-items:center;justify-content:center}.admin-site-badge{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#ef4444;color:#fff;font-size:10px;line-height:17px;text-align:center;font-weight:800;border:2px solid var(--bg-primary,#fff)}
 
@@ -3294,9 +3290,6 @@ html.is-loading body { overflow: hidden; }
 }
 
 /* Keep large off-screen sections from doing layout/paint work until needed. */
-@media (min-width: 861px) {
-    section:not(.hero) { content-visibility: auto; contain-intrinsic-size: 600px; }
-}
 .hero-workspace-image img,
 .creator-avatar {
     content-visibility: visible;

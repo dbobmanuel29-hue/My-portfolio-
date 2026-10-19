@@ -33,7 +33,7 @@
         const favicon = document.createElement('link');
         favicon.rel = 'icon';
         favicon.type = 'image/svg+xml';
-        favicon.href = 'assets/icons/bobmanuel-mark.svg';
+        favicon.href = '/favicon.ico';
         document.head.appendChild(favicon);
     }
     const homePrefix = page === 'home' ? '' : 'index.html';

@@ -2,6 +2,7 @@ import { signOut } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-aut
 import { addDoc, collection, deleteDoc, doc, getCountFromServer, getDoc, getDocs, limit, orderBy, query, serverTimestamp, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 import { auth, db } from '../js/firebase-config.js';
 import { authReady } from '../js/auth-state.js';
+import { isAuthorizedAdmin } from '../js/admin-auth.js';
 
 const state = { view: 'dashboard', cache: {}, editingCollection: '', media: { imageUrl: '', thumbUrl: '' } };
 const MEDIA_CONFIG_KEY = 'bobmanuel_media_upload_config_v1';
@@ -41,18 +42,31 @@ const shell = document.getElementById('adminShell');
 
 boot().catch(error => deny(error?.message || 'Administrator dashboard failed to initialize.'));
 async function boot() {
-    const result = await Promise.race([
-        authReady,
-        new Promise((_, reject) => window.setTimeout(() => reject(new Error('Administrator authorization timed out. Check your Firebase connection and Firestore rules.')), 12000))
-    ]);
-    const { user, isAdmin } = result;
-    if (!user) return denyAndRedirect('Please sign in before accessing the administrator dashboard.', '../login.html');
-    if (!isAdmin) return denyAndRedirect('Access denied. This account is not an active administrator.', '../index.html');
-    loading.classList.add('is-hidden');
-    shell.hidden = false;
-    bindNavigation();
-    await showView('dashboard');
-    if (window.lucide) lucide.createIcons();
+    try {
+        const result = await Promise.race([
+            authReady,
+            new Promise((_, reject) => window.setTimeout(() => reject(new Error('Firebase sign-in check timed out. Refresh the page and try again.')), 12000))
+        ]);
+        const { user } = result;
+        if (!user) return denyAndRedirect('Please sign in before accessing the administrator dashboard.', '../login.html');
+
+        // Verify admin access directly here. Shared auth readiness no longer
+        // waits for this Firestore request, so the admin page must check it itself.
+        const isAdmin = await Promise.race([
+            isAuthorizedAdmin(user),
+            new Promise((_, reject) => window.setTimeout(() => reject(new Error('Could not verify administrator access. Check your connection and try again.')), 10000))
+        ]);
+        if (!isAdmin) return denyAndRedirect('Access denied: this account is not an active administrator.', '../index.html');
+
+        loading.classList.add('is-hidden');
+        shell.hidden = false;
+        bindNavigation();
+        await showView('dashboard');
+        if (window.lucide) lucide.createIcons();
+    } catch (error) {
+        deny(error?.message || 'Administrator dashboard failed to initialize. Refresh and try again.');
+        console.error('[Admin boot] Failed:', error);
+    }
 }
 function deny(message) { loading.classList.remove('is-hidden'); loading.textContent = message; loading.style.color = '#b91c1c'; }
 function denyAndRedirect(message, target) {

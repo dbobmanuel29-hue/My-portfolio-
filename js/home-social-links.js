@@ -48,11 +48,10 @@ async function syncHomepageSocialLinks() {
   if (document.body.dataset.page !== 'home') return;
   try {
     const snapshot = await getDocs(collection(db, 'social_links'));
-    if (snapshot.empty) return; // Preserve the existing static links until links are managed in the dashboard.
+    if (snapshot.empty) return;
     const links = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
       .filter(item => item.enabled !== false && typeof item.url === 'string' && validUrl(item.url))
       .sort((a,b) => (Number(a.order) || 0) - (Number(b.order) || 0));
-    if (!links.length) return;
     const managedPlatforms = new Set(['tiktok','instagram','youtube','whatsapp','website','other']);
     for (const selector of ['.hero-socials', '.footer-socials']) {
       const container = document.querySelector(selector);
@@ -64,7 +63,12 @@ async function syncHomepageSocialLinks() {
       container.replaceChildren(...links.map(item => managedAnchor(item, 'icon')), ...unmanaged);
     }
     const cards = document.querySelector('.socials-grid');
-    if (cards) cards.replaceChildren(...links.map(item => managedAnchor(item, 'card')));
+    if (cards) {
+      cards.replaceChildren(...links.map(item => managedAnchor(item, 'card')));
+      cards.classList.toggle('socials-grid-single', links.length === 1);
+      cards.style.gridTemplateColumns = links.length === 1 ? 'minmax(260px, 360px)' : '';
+      cards.style.justifyContent = links.length === 1 ? 'center' : '';
+    }
   } catch (error) {
     console.warn('Managed homepage links could not be loaded; keeping existing links.', error);
   }

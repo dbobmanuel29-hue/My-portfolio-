@@ -448,7 +448,10 @@ function renderVideos(videos) {
         card.addEventListener('click', () => {
             const video = videos.find(item => item.id === card.getAttribute('data-id'));
             if (!video) return;
-            const safeVideoUrl = safeExternalUrl(video.videoUrl);
+            const managedDestinations = window.__managedSocialDestinations || {};
+            const platformKey = String(video.platform || '').toLowerCase();
+            const destination = managedDestinations[platformKey] || video.videoUrl;
+            const safeVideoUrl = safeExternalUrl(destination);
             if (safeVideoUrl) {
                 window.open(safeVideoUrl, '_blank', 'noopener');
             } else {

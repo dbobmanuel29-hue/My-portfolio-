@@ -445,9 +445,10 @@ function renderVideos(videos) {
     refreshIcons();
 
     grid.querySelectorAll('.video-card').forEach(card => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', async () => {
             const video = videos.find(item => item.id === card.getAttribute('data-id'));
             if (!video) return;
+            try { await window.__managedSocialDestinationsReady; } catch (_) { /* Use the stored URL if Firebase is unavailable. */ }
             const managedDestinations = window.__managedSocialDestinations || {};
             const platformKey = String(video.platform || '').toLowerCase();
             const destination = managedDestinations[platformKey] || video.videoUrl;

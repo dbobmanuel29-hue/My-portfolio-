@@ -52,22 +52,58 @@ async function syncHomepageSocialLinks() {
     const links = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
       .filter(item => item.enabled !== false && typeof item.url === 'string' && validUrl(item.url))
       .sort((a,b) => (Number(a.order) || 0) - (Number(b.order) || 0));
-    const managedPlatforms = new Set(['tiktok','instagram','youtube','whatsapp','website','other']);
+    const platformKeys = ['tiktok','instagram','youtube','whatsapp','website'];
+    const managedByPlatform = new Map();
+    for (const item of links) {
+      const key = String(item.platform || 'other').toLowerCase();
+      if (!managedByPlatform.has(key)) managedByPlatform.set(key, []);
+      managedByPlatform.get(key).push(item);
+    }
+
+    // Keep existing HTML links as fallbacks for platforms not yet configured in the dashboard.
     for (const selector of ['.hero-socials', '.footer-socials']) {
       const container = document.querySelector(selector);
       if (!container) continue;
-      const unmanaged = [...container.querySelectorAll('a')].filter(a => {
-        const label = (a.getAttribute('aria-label') || '').toLowerCase();
-        return !managedPlatforms.has(label) && label !== 'website';
-      });
-      container.replaceChildren(...links.map(item => managedAnchor(item, 'icon')), ...unmanaged);
+      const staticLinks = [...container.querySelectorAll('a')];
+      const staticByPlatform = new Map(staticLinks.map(a => [(a.getAttribute('aria-label') || '').toLowerCase(), a]));
+      const output = [];
+      for (const platform of platformKeys) {
+        if (managedByPlatform.has(platform)) {
+          output.push(...managedByPlatform.get(platform).map(item => managedAnchor(item, 'icon')));
+        } else if (staticByPlatform.has(platform)) {
+          output.push(staticByPlatform.get(platform));
+        }
+      }
+      output.push(...staticLinks.filter(a => ['email','github','linkedin'].includes((a.getAttribute('aria-label') || '').toLowerCase())));
+      // Include any dashboard-managed custom platforms after the familiar platform buttons.
+      for (const [platform, items] of managedByPlatform) {
+        if (!platformKeys.includes(platform)) output.push(...items.map(item => managedAnchor(item, 'icon')));
+      }
+      container.replaceChildren(...output);
     }
+
     const cards = document.querySelector('.socials-grid');
     if (cards) {
-      cards.replaceChildren(...links.map(item => managedAnchor(item, 'card')));
-      cards.classList.toggle('socials-grid-single', links.length === 1);
-      cards.style.gridTemplateColumns = links.length === 1 ? 'minmax(260px, 360px)' : '';
-      cards.style.justifyContent = links.length === 1 ? 'center' : '';
+      const staticCards = [...cards.querySelectorAll('a')];
+      const staticByPlatform = new Map(staticCards.map(a => {
+        const heading = a.querySelector('h3')?.textContent?.toLowerCase() || '';
+        return [heading.includes('tiktok') ? 'tiktok' : heading.includes('instagram') ? 'instagram' : heading.includes('youtube') ? 'youtube' : heading.includes('whatsapp') ? 'whatsapp' : heading.includes('website') ? 'website' : heading, a];
+      }));
+      const output = [];
+      for (const platform of platformKeys) {
+        if (managedByPlatform.has(platform)) {
+          output.push(...managedByPlatform.get(platform).map(item => managedAnchor(item, 'card')));
+        } else if (staticByPlatform.has(platform)) {
+          output.push(staticByPlatform.get(platform));
+        }
+      }
+      for (const [platform, items] of managedByPlatform) {
+        if (!platformKeys.includes(platform)) output.push(...items.map(item => managedAnchor(item, 'card')));
+      }
+      cards.replaceChildren(...output);
+      cards.classList.toggle('socials-grid-single', output.length === 1);
+      cards.style.gridTemplateColumns = output.length === 1 ? 'minmax(260px, 360px)' : '';
+      cards.style.justifyContent = output.length === 1 ? 'center' : '';
     }
   } catch (error) {
     console.warn('Managed homepage links could not be loaded; keeping existing links.', error);

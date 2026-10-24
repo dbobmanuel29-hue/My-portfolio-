@@ -78,26 +78,45 @@ function startAdminNotificationListeners() {
     }, error => console.warn('[Admin notifications] message listener:', error.message)));
 }
 
-document.addEventListener('click', event => {
-    const bell = event.target.closest('.admin-site-bell');
-    if (!bell) return;
-    localStorage.setItem('bobmanuel_admin_notifications_seen_at', String(Date.now()));
-    adminNotificationState.newUsers = 0;
-    renderAdminNotificationBadge();
-});
-
 // The application has exactly one Firebase auth observer, located here.
+// Resolve authReady as soon as Firebase reports the signed-in user. Do not make
+// every page wait for a Firestore administrator lookup to finish.
 onAuthStateChanged(
     auth,
-    async user => {
+    user => {
         state.status = user ? 'signed-in' : 'signed-out';
         state.user = user;
-        state.isAdmin = user ? await isAuthorizedAdmin(user) : false;
-        if (state.isAdmin) startAdminNotificationListeners(); else stopAdminNotificationListeners();
+        state.isAdmin = false;
         renderAuthNavigation();
         renderAdminNotificationBadge();
         notify();
         resolveInitialState({ ...state });
+
+        if (!user) {
+            stopAdminNotificationListeners();
+            return;
+        }
+
+        // Authorization is still checked against Firestore; it simply runs
+        // independently so a slow request cannot freeze the whole dashboard.
+        Promise.race([
+            isAuthorizedAdmin(user),
+            new Promise(resolve => window.setTimeout(() => resolve(false), 8000))
+        ]).then(isAdmin => {
+            if (auth.currentUser?.uid !== user.uid) return;
+            state.isAdmin = isAdmin === true;
+            if (state.isAdmin) startAdminNotificationListeners();
+            else stopAdminNotificationListeners();
+            renderAuthNavigation();
+            renderAdminNotificationBadge();
+            notify();
+        }).catch(error => {
+            console.error('[Firebase authorization] Admin check failed:', error?.code || error?.message || error);
+            state.isAdmin = false;
+            stopAdminNotificationListeners();
+            renderAuthNavigation();
+            notify();
+        });
     },
     error => {
         state.status = 'signed-out';

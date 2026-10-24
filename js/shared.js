@@ -182,6 +182,10 @@
 
 })();
 
+import('./site-social-links.js').catch(error => {
+    console.warn('Social link sync could not load:', error.message);
+});
+
 import('./auth-state.js').catch(error => {
     console.error('Authentication state module failed to load:', error.message);
 });

@@ -72,4 +72,4 @@ async function syncSocialDestinations() {
   }
 }
 
-syncSocialDestinations();
+window.__managedSocialDestinationsReady = syncSocialDestinations();

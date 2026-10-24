@@ -92,6 +92,8 @@ service cloud.firestore {
     match /projects/{id} { allow read: if true; allow write: if admin(); }
     match /designs/{id} { allow read: if true; allow write: if admin(); }
     match /videos/{id} { allow read: if true; allow write: if admin(); }
-    match /social_links/{id} { allow read: if true; allow write: if admin(); }\n    match /{document=**} { allow read, write: if false; }
+
+    match /social_links/{id} { allow read: if true; allow write: if admin(); }
+    match /{document=**} { allow read, write: if false; }
   }
 }

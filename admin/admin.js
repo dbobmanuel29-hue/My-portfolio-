@@ -75,7 +75,8 @@ async function showView(view) {
     if (view === 'users') return renderUsers();
     if (view === 'inquiries') return renderClientInquiries();
     if (['projects','designs','videos'].includes(view)) return renderContent(view);
-    renderMediaSettings();
+    if (view === 'links') return renderSocialLinks();
+    return renderMediaSettings();
 }
 async function loadAuthUsers() {
     const token = await auth.currentUser?.getIdToken();
@@ -276,6 +277,138 @@ async function saveContent(event){
         }
         document.getElementById('contentDialog').close(); await showView(name);
     } catch(error){ console.error('Content save/upload failed',error); setUploadStatus(error.message||'Upload failed.','error'); alert(error.message||'Save failed.'); } finally { saveButton.disabled=false; }
+}
+
+
+async function renderSocialLinks() {
+    try {
+        const snapshot = await getDocs(collection(db, 'social_links'));
+        state.cache.social_links = snapshot.docs
+            .map(item => ({ id: item.id, ...item.data() }))
+            .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+
+        content.innerHTML = [
+            '<div class="admin-panel"><h2>Public links</h2>',
+            '<p>Add or update the links visitors see on your public links page. Give each one a clear name and group, such as Website, Anime, Edits, Business or Social. You can keep as many links as you need.</p>',
+            '<form id="socialLinkForm" class="social-link-form">',
+            '<input type="hidden" id="socialLinkId">',
+            '<div class="settings-grid">',
+            '<label>Link name<input id="socialLinkName" maxlength="100" required placeholder="e.g. TikTok — Anime Edits"></label>',
+            '<label>Category / group<input id="socialLinkCategory" maxlength="60" required placeholder="e.g. Anime, Edits, Website"></label>',
+            '<label>Platform<select id="socialLinkPlatform"><option value="website">Website / Portfolio</option><option value="tiktok">TikTok</option><option value="instagram">Instagram</option><option value="whatsapp">WhatsApp</option><option value="youtube">YouTube</option><option value="other">Other</option></select></label>',
+            '<label>Link URL<input id="socialLinkUrl" type="url" maxlength="1000" required placeholder="https://..."><small class="field-help">For WhatsApp, you can use a link such as https://wa.me/2348012345678.</small></label>',
+            '<label>Short description<input id="socialLinkDescription" maxlength="180" placeholder="What visitors will find here"></label>',
+            '<label>Display order<input id="socialLinkOrder" type="number" min="0" max="9999" step="1" value="10" required></label>',
+            '</div><label class="check"><input id="socialLinkEnabled" type="checkbox" checked> Show this link publicly</label>',
+            '<div class="social-link-form-actions"><button class="action" id="socialLinkSave" type="submit">Add link</button><button type="button" id="socialLinkReset">Clear form</button></div>',
+            '</form></div>',
+            '<div class="admin-panel"><div class="admin-toolbar"><h2>Saved links</h2>',
+            (state.cache.social_links.length ? '' : '<button class="action" id="importCurrentLinks">Import current links</button>'),
+            '</div><p class="field-help">Links are saved in Firestore and update the public links page without editing HTML. Disabled links stay saved here but are hidden from visitors.</p>',
+            '<div id="socialLinksTable"></div></div>'
+        ].join('');
+
+        const form = document.getElementById('socialLinkForm');
+        const resetForm = () => {
+            form.reset();
+            document.getElementById('socialLinkId').value = '';
+            document.getElementById('socialLinkCategory').value = 'Social';
+            document.getElementById('socialLinkPlatform').value = 'website';
+            document.getElementById('socialLinkOrder').value = String((state.cache.social_links.length + 1) * 10);
+            document.getElementById('socialLinkEnabled').checked = true;
+            document.getElementById('socialLinkSave').textContent = 'Add link';
+        };
+        const paint = () => {
+            const rows = state.cache.social_links;
+            document.getElementById('socialLinksTable').innerHTML = rows.length
+                ? '<table><thead><tr><th>Name</th><th>Group</th><th>Platform</th><th>URL</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+                    rows.map(item => '<tr><td><strong>' + e(item.title) + '</strong><br><small>' + e(item.description || '') + '</small></td><td>' + e(item.category || 'Social') + '</td><td>' + e(item.platform || 'other') + '</td><td><a href="' + e(item.url) + '" target="_blank" rel="noopener noreferrer">Open link</a></td><td>' + (Number(item.order) || 0) + '</td><td>' + (item.enabled === false ? 'Hidden' : 'Visible') + '</td><td class="row-actions"><button type="button" data-link-edit="' + e(item.id) + '">Edit</button><button type="button" data-link-delete="' + e(item.id) + '">Delete</button></td></tr>').join('') +
+                    '</tbody></table>'
+                : '<p class="empty">No custom links yet. Import the current YouTube, Instagram and portfolio links to start, or add a new link above.</p>';
+        };
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            const id = document.getElementById('socialLinkId').value;
+            const url = document.getElementById('socialLinkUrl').value.trim();
+            if (!safeUrl(url)) return alert('Please enter a valid HTTP or HTTPS link.');
+            const payload = {
+                title: document.getElementById('socialLinkName').value.trim().slice(0, 100),
+                category: document.getElementById('socialLinkCategory').value.trim().slice(0, 60),
+                platform: document.getElementById('socialLinkPlatform').value,
+                url,
+                description: document.getElementById('socialLinkDescription').value.trim().slice(0, 180),
+                order: Math.max(0, Math.min(9999, Number(document.getElementById('socialLinkOrder').value) || 0)),
+                enabled: document.getElementById('socialLinkEnabled').checked,
+                updatedAt: serverTimestamp()
+            };
+            if (!payload.title || !payload.category) return alert('Please enter a link name and category.');
+            const saveButton = document.getElementById('socialLinkSave');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Saving…';
+            try {
+                if (id) {
+                    await updateDoc(doc(db, 'social_links', id), payload);
+                } else {
+                    await addDoc(collection(db, 'social_links'), { ...payload, createdAt: serverTimestamp() });
+                }
+                await renderSocialLinks();
+            } catch (error) {
+                console.error('Social link save failed:', error);
+                alert('Could not save this link. Confirm the Firestore rules have been deployed and your admin access is active.');
+                saveButton.disabled = false;
+                saveButton.textContent = id ? 'Save changes' : 'Add link';
+            }
+        });
+        document.getElementById('socialLinkReset').onclick = resetForm;
+        content.onclick = async event => {
+            const editId = event.target.closest('[data-link-edit]')?.dataset.linkEdit;
+            const deleteId = event.target.closest('[data-link-delete]')?.dataset.linkDelete;
+            if (editId) {
+                const item = state.cache.social_links.find(link => link.id === editId);
+                if (!item) return;
+                document.getElementById('socialLinkId').value = item.id;
+                document.getElementById('socialLinkName').value = item.title || '';
+                document.getElementById('socialLinkCategory').value = item.category || 'Social';
+                document.getElementById('socialLinkPlatform').value = item.platform || 'other';
+                document.getElementById('socialLinkUrl').value = item.url || '';
+                document.getElementById('socialLinkDescription').value = item.description || '';
+                document.getElementById('socialLinkOrder').value = String(Number(item.order) || 0);
+                document.getElementById('socialLinkEnabled').checked = item.enabled !== false;
+                document.getElementById('socialLinkSave').textContent = 'Save changes';
+                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            if (deleteId && confirm('Delete this link permanently?')) {
+                try {
+                    await deleteDoc(doc(db, 'social_links', deleteId));
+                    await renderSocialLinks();
+                } catch (error) {
+                    console.error('Social link delete failed:', error);
+                    alert('Could not delete this link. Confirm Firestore rules and admin access.');
+                }
+            }
+            if (event.target.closest('#importCurrentLinks')) {
+                const button = document.getElementById('importCurrentLinks');
+                button.disabled = true;
+                try {
+                    const defaults = [
+                        { title: 'YouTube', category: 'Anime', platform: 'youtube', url: 'https://youtube.com/@scottedits-f2g', description: 'Watch my anime edits and videos', order: 10, enabled: true },
+                        { title: 'Instagram', category: 'Edits', platform: 'instagram', url: 'https://instagram.com/scott_vfx', description: 'Follow my creator work and updates', order: 20, enabled: true },
+                        { title: 'Website / Portfolio', category: 'Website', platform: 'website', url: 'https://bobmanuel.name.ng', description: 'View my projects, services and work', order: 30, enabled: true }
+                    ];
+                    for (const item of defaults) await addDoc(collection(db, 'social_links'), { ...item, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+                    await renderSocialLinks();
+                } catch (error) {
+                    console.error('Current link import failed:', error);
+                    alert('Could not import links. Confirm Firestore rules and admin access.');
+                    button.disabled = false;
+                }
+            }
+        };
+        paint();
+    } catch (error) {
+        console.error('Social links could not be loaded:', error);
+        content.innerHTML = '<div class="admin-panel"><h2>Public links</h2><p class="empty">Could not load links. Deploy the updated Firestore rules and confirm your administrator account is active, then try again.</p></div>';
+    }
 }
 
 async function testEmailNotifications(){const button=document.getElementById('testEmailNotifications');if(!button)return;button.disabled=true;button.textContent='Sending test…';try{const token=await auth.currentUser?.getIdToken();if(!token)throw new Error('Admin authentication token is unavailable.');const response=await fetch('../.netlify/functions/test-notification',{method:'POST',headers:{Authorization:`Bearer ${token}`}});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Test email failed.');alert(`Test email sent to ${result.to}. Check that inbox (and Spam/Promotions if necessary).`);}catch(error){console.error('Test email failed',error);alert(error.message||'Test email failed. Check Netlify Function logs and Resend.');}finally{button.disabled=false;button.textContent='Send me a test notification';}}

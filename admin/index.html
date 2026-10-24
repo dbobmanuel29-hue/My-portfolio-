@@ -12,28 +12,34 @@
 <label id="contentUrlField">Live / Video URL<input id="contentUrl" type="url" maxlength="1000"><small class="field-help">Optional fallback or external link.</small></label><label>Technologies / Tools / Tags (comma separated)<input id="contentTech" maxlength="500"></label><label class="check"><input id="contentFeatured" type="checkbox"> Featured</label><div><button value="cancel">Cancel</button><button type="submit" value="default">Save</button></div></form></dialog><dialog id="inquiryDialog"><div class="inquiry-dialog"><button type="button" class="dialog-close" id="inquiryDialogClose" aria-label="Close inquiry details">×</button><h2>Client Inquiry</h2><div id="inquiryDialogBody"></div></div></dialog>
 <script>
 (() => {
-  const started = Date.now();
-  const showStartupError = (message) => {
-    const loading = document.getElementById('adminLoading');
+  const loading = document.getElementById('adminLoading');
+  const showError = (text) => {
     if (!loading || loading.dataset.ready === 'true') return;
-    loading.textContent = message;
+    loading.textContent = text;
     loading.style.color = '#b91c1c';
     loading.style.padding = '24px';
     loading.style.textAlign = 'center';
+    loading.style.whiteSpace = 'pre-wrap';
+    loading.style.overflowWrap = 'anywhere';
   };
   window.addEventListener('error', (event) => {
-    if (event.message || event.error) showStartupError('Admin script failed to start. Refresh this page once; if it continues, send the exact error shown in the browser console.');
+    if (event.message || event.error) {
+      const location = event.filename ? '\\nFile: ' + event.filename.split('/').slice(-2).join('/') + ':' + (event.lineno || '?') : '';
+      showError('Admin JavaScript error: ' + (event.message || event.error?.message || 'Unknown error') + location);
+    }
   });
   window.addEventListener('unhandledrejection', (event) => {
-    console.error('[Admin startup] Unhandled rejection:', event.reason);
+    const reason = event.reason;
+    const message = reason?.message || String(reason || 'Unknown rejection');
+    console.error('[Admin startup] Unhandled rejection:', reason);
+    showError('Admin startup rejected: ' + message);
   });
   window.setTimeout(() => {
-    const loading = document.getElementById('adminLoading');
     const shell = document.getElementById('adminShell');
     if (loading && !loading.classList.contains('is-hidden') && shell?.hidden) {
-      showStartupError('Admin startup is taking too long. The script or Firebase request may be blocked. Refresh once; do not change Firebase rules.');
+      showError('Admin startup timed out. The JavaScript module may not have loaded, or a Firebase request may be blocked. No Firebase rules need changing for this diagnostic.');
     }
   }, 16000);
 })();
 </script>
-<script type="module" src="admin.js?v=48024ee"></script></body></html>
+<script type="module" src="admin.js?v=b9d8c79"></script></body></html>

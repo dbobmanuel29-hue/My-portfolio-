@@ -449,10 +449,9 @@ function renderVideos(videos) {
             const video = videos.find(item => item.id === card.getAttribute('data-id'));
             if (!video) return;
             try { await window.__managedSocialDestinationsReady; } catch (_) { /* Use the stored URL if Firebase is unavailable. */ }
-            const managedDestinations = window.__managedSocialDestinations || {};
-            const platformKey = String(video.platform || '').toLowerCase();
-            const destination = managedDestinations[platformKey] || video.videoUrl;
-            const safeVideoUrl = safeExternalUrl(destination);
+            // Each video card uses its own URL from Admin → Videos. The social-links
+            // collection is for general profile buttons, not a replacement for every video.
+            const safeVideoUrl = safeExternalUrl(video.videoUrl);
             if (safeVideoUrl) {
                 window.open(safeVideoUrl, '_blank', 'noopener');
             } else {

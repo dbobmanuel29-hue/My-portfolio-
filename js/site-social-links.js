@@ -33,6 +33,8 @@ async function syncSocialDestinations() {
       const platform = String(item.platform || 'other').toLowerCase();
       if (platformMatchers[platform] && !preferred.has(platform)) preferred.set(platform, item.url);
     }
+    window.__managedSocialDestinations = Object.fromEntries(preferred);
+    window.dispatchEvent(new Event('managed-social-links-ready'));
     if (!preferred.size) return;
 
     const updateAnchors = root => {
